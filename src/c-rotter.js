@@ -9,10 +9,10 @@ module.exports =  class Rotter {
   file = './src/rotter.json'
   baseUrl = 'https://rotter.net/forum/scoops1/';
   extension = ".shtml";
-  newestScoop = 633283;
-  amountOfPages=10
+  startPost = 633283;
+  amountOfPosts=10
   rotterData = [];
-  oldestScoop;
+  endPost;
   pageUrl;
   requestCounter;
 
@@ -20,9 +20,9 @@ module.exports =  class Rotter {
 
     this.initVars(newestScoop,amountOfPages);
     
-    console.log('newestScoop:',this.newestScoop)
-    console.log('amountOfPages:',this.amountOfPages)
-    console.log('oldestScoop:',this.oldestScoop)
+    console.log('newestScoop:',this.startPost)
+    console.log('amountOfPages:',this.amountOfPosts)
+    console.log('oldestScoop:',this.endPost)
     console.log("encode support 1255", iconv.encodingExists("windows-1255"));
     console.log("encode support utf8", iconv.encodingExists("utf-8"));
     console.log('first page', this.pageUrl)
@@ -30,11 +30,11 @@ module.exports =  class Rotter {
   }
 
   initVars(newestScoop = undefined , amountOfPages = undefined){
-    this.newestScoop = newestScoop || this.newestScoop;
-    this.amountOfPages = amountOfPages || this.amountOfPages;
-    this.oldestScoop = this.newestScoop - this.amountOfPages;
-    this.pageUrl = this.baseUrl + this.newestScoop + this.extension
-    this.requestCounter=this.amountOfPages
+    this.startPost = newestScoop || this.startPost;
+    this.amountOfPosts = amountOfPages || this.amountOfPosts;
+    this.endPost = this.startPost - this.amountOfPosts;
+    this.pageUrl = this.baseUrl + this.startPost + this.extension
+    this.requestCounter=this.amountOfPosts
   
   }
   scarpSinglePage(decodedBody,url) {
@@ -93,10 +93,10 @@ module.exports =  class Rotter {
 
   loopPages(){
     this.clearFile();
-    for (let i = this.oldestScoop; i<=this.newestScoop;i++){
+    for (let i = this.endPost; i<=this.startPost;i++){
 
       const   pageUrl = this.baseUrl + i + this.extension
-      const delay = (this.newestScoop-i)*2 *1000
+      const delay = (this.startPost-i)*2 *1000
       console.log('delay:'+ delay/1000 + ' secondes')
       // we do it to because the rotter server accept only 1 request from ip per 2 seconds
       setTimeout(this.bufferFetch.bind(this,pageUrl) , delay)
