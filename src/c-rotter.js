@@ -3,51 +3,64 @@ const https = require('https')
 const $ = require('cheerio');
 fs = require('fs');
 var os = require("os");
+var Posts =require("./model")
+module.exports =  class Rotter {
 
-
-class Rotter {
-
-
+  file = './src/rotter.json'
   baseUrl = 'https://rotter.net/forum/scoops1/';
   extension = ".shtml";
   newestScoop = 633283;
-  amountOfPages=100
-  oldestScoop = this.newestScoop - this.amountOfPages;
-  pageUrl = this.baseUrl + this.newestScoop + this.extension
-  requestCounter=this.amountOfPages
+  amountOfPages=10
   rotterData = [];
+  oldestScoop;
+  pageUrl;
+  requestCounter;
 
-  constructor() {
+  constructor(newestScoop,amountOfPages) {
 
+    this.initVars(newestScoop,amountOfPages);
+    
+    console.log('newestScoop:',this.newestScoop)
+    console.log('amountOfPages:',this.amountOfPages)
+    console.log('oldestScoop:',this.oldestScoop)
     console.log("encode support 1255", iconv.encodingExists("windows-1255"));
     console.log("encode support utf8", iconv.encodingExists("utf-8"));
-
-    console.log('page', this.pageUrl)
-
-  }
-  scarpSinglePage(url) {
-    return rp(url).then(html => {
-      console.log(html);
-      data = {
-        title: $('.text16b', html).text()
-      }
-      titles.push(data);
-      console.log('data', data)
-
-      return data;
-    }).catch(e => console.log)
+    console.log('first page', this.pageUrl)
+   
   }
 
-  savetext(text = 'empty') {
-    // console.log(text);
+  initVars(newestScoop = undefined , amountOfPages = undefined){
+    this.newestScoop = newestScoop || this.newestScoop;
+    this.amountOfPages = amountOfPages || this.amountOfPages;
+    this.oldestScoop = this.newestScoop - this.amountOfPages;
+    this.pageUrl = this.baseUrl + this.newestScoop + this.extension
+    this.requestCounter=this.amountOfPages
+  
+  }
+  scarpSinglePage(decodedBody,url) {
+    const title = $('h1.text16b', decodedBody).text();
+    const writer = $('a>b', decodedBody).first().text();
+    const postData ={index:this.requestCounter,title,writer ,url};
+    return postData;
+  }
 
-
-    fs.appendFile('./src/helloworld.txt', text +os.EOL, 'utf8', function (err) {
+  clearFile(){
+    fs.writeFile(this.file, '', 'utf8', function (err) {
       if (err) return console.log(err);
-      // console.log('savetext > helloworld.txt');
+    });
+  }
+  saveText(text = 'empty') {
+    fs.appendFile(this.file, text +os.EOL, 'utf8', function (err) {
+      if (err) return console.log(err);
     });
   }
 
+  async saveDB(postData){
+    
+    const dbResult = await Posts.PostsCollection.insertOne(postData);
+    console.log('end insert post' ,postData.index);
+
+  }
 
   decodeWin1255(chunks) {
     return iconv.decode(Buffer.concat(chunks), 'win1255');
@@ -63,44 +76,33 @@ class Rotter {
         chunks.push(chunk);
       });
       res.on('end', () => {
-        // console.log();
 
         var decodedBody = this.decodeWin1255(chunks)
-        const title = $('h1.text16b', decodedBody).text()
-
-        // console.log(title);
-        this.rotterData.push({str: title ,url});
-        // console.log('rotterData',this.rotterData)
         
-        this.savetext(JSON.stringify({str: title ,index:this.requestCounter,url}))
+        const postData = this.scarpSinglePage(decodedBody,url)
+        this.rotterData.push(postData);
+        
+        this.saveText(JSON.stringify(postData));
+        this.saveDB(postData)
         console.log(--this.requestCounter);
-        // this.requestCounter--;
-        // if (this.requestCounter===0){
-        //   this.savetext( JSON.stringify(this.rotterData) )
-        // }
+        
 
       });
     });
   }
 
   loopPages(){
-
+    this.clearFile();
     for (let i = this.oldestScoop; i<=this.newestScoop;i++){
+
       const   pageUrl = this.baseUrl + i + this.extension
       const delay = (this.newestScoop-i)*2 *1000
-      console.log('delay:'+ delay)
+      console.log('delay:'+ delay/1000 + ' secondes')
+      // we do it to because the rotter server accept only 1 request from ip per 2 seconds
       setTimeout(this.bufferFetch.bind(this,pageUrl) , delay)
       
     }
-
-    // console.log('rotterData',this.rotterData)
-    
   }
 
 } //end class
 
-
-const r = new Rotter();
-// r.bufferFetch();
-
-r.loopPages()

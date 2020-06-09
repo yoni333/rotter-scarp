@@ -2,5 +2,5 @@
 
 # 
 # 
-# npm install --save request request-promise cheerio puppeteer
-# 
+#  docker build  -t yoni333/rotter-scarp:rotter .
+#  docker run -d rotter

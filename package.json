@@ -23,9 +23,7 @@
     "axios": "^0.19.2",
     "cheerio": "^1.0.0-rc.3",
     "iconv-lite": "^0.6.0",
-    "nodemon": "^2.0.4",
-    "puppeteer": "^3.3.0",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.5"
+    "mongoose": "^5.9.18"
+  
   }
 }
