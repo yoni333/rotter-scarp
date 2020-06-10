@@ -5,4 +5,9 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-CMD [ "node", "./src/index.js" ]
+ARG startPostDefult=620000
+ARG startAmountDefult=10
+ENV startPost=${startPostDefult}
+ENV pageAmount=${startAmountDefult}
+RUN echo "defualt CMD wil be : node ./src/index.js  ${startPost} ${pageAmount}"  
+CMD    node ./src/index.js  ${startPost} ${pageAmount}

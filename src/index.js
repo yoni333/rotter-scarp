@@ -1,6 +1,7 @@
 const Rotter = require('./c-rotter')
 
 const myArgs = process.argv.slice(2);
+console.log('args',myArgs)
 let startPost = myArgs[0];
 let amountOfPosts = myArgs[1];
 
@@ -20,7 +21,7 @@ try {
 
   const r = new Rotter(startPost, amountOfPosts);
 
-  r.loopPages()
+  //r.loopPages()
 
 } catch (error) {
   console.log(error);
