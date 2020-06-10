@@ -21,7 +21,7 @@ try {
 
   const r = new Rotter(startPost, amountOfPosts);
 
-  //r.loopPages()
+  r.loopPages()
 
 } catch (error) {
   console.log(error);

@@ -10,4 +10,4 @@ ARG startAmountDefult=10
 ENV startPost=${startPostDefult}
 ENV pageAmount=${startAmountDefult}
 RUN echo "defualt CMD wil be : node ./src/index.js  ${startPost} ${pageAmount}"  
-CMD    node ./src/index.js  ${startPost} ${pageAmount}
+CMD    node ./src/index.js  ${startPost} ${pageAmount} 
