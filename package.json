@@ -5,14 +5,12 @@
   "main": "src/index.js",
   "nodemonConfig": {
     "verbose": true,
-
-    "ignore": ["src/data/"]
-
+    "ignore": ["./src/data/*.*"]
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
-    "start": "nodemon ./src/index.js 630000 3"
+    "start": "nodemon ./src/index.js 630000 3 -i ./src/data/"
   },
   "repository": {
     "type": "git",
