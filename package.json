@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "#  #  # npm install --save request request-promise cheerio puppeteer #",
   "main": "src/index.js",
+  "nodemonConfig": {
+    "verbose": true,
+
+    "ignore": ["src/rotter.json"]
+
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "start": "nodemon ./src/index.js 630000 3"
   },
   "repository": {
     "type": "git",
@@ -25,10 +32,9 @@
     "mongoose": "^5.9.18"
   },
   "devDependencies": {
-    "@types/node": "^14.0.13",
     "@types/express": "^4.17.6",
+    "@types/node": "^14.0.13",
+    "nodemon": "^2.0.4",
     "typescript": "^3.9.5"
-
-
   }
 }

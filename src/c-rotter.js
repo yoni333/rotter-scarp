@@ -1,20 +1,19 @@
 var iconv = require('iconv-lite');
 const https = require('https')
 const $ = require('cheerio');
-fs = require('fs');
-var os = require("os");
-var Posts =require("./model")
+const SaveData = require('./save-data')
+
 module.exports =  class Rotter {
 
-  file = './src/rotter.json'
   baseUrl = 'https://rotter.net/forum/scoops1/';
   extension = ".shtml";
   startPost = 633283;
   amountOfPosts=10
-  rotterData = [];
+  // rotterData = [];
   endPost;
   pageUrl;
   requestCounter;
+  saveData
 
   constructor(newestScoop,amountOfPages) {
 
@@ -30,6 +29,10 @@ module.exports =  class Rotter {
   }
 
   initVars(newestScoop = undefined , amountOfPages = undefined){
+    console.log(SaveData);
+
+    this.saveData = new SaveData()
+
     this.startPost = newestScoop || this.startPost;
     this.amountOfPosts = amountOfPages || this.amountOfPosts;
     this.endPost = this.startPost - this.amountOfPosts;
@@ -44,24 +47,7 @@ module.exports =  class Rotter {
     return postData;
   }
 
-  clearFile(){
-    fs.writeFile(this.file, '', 'utf8', function (err) {
-      if (err) return console.log(err);
-    });
-  }
-  saveText(text = 'empty') {
-    fs.appendFile(this.file, text +os.EOL, 'utf8', function (err) {
-      if (err) return console.log(err);
-    });
-  }
-
-  async saveDB(postData){
-    
-    const dbResult = await Posts.PostsCollection.insertOne(postData);
-    console.log('end insert post' ,postData.index);
-
-  }
-
+  
   decodeWin1255(chunks) {
     return iconv.decode(Buffer.concat(chunks), 'win1255');
   }
@@ -71,7 +57,7 @@ module.exports =  class Rotter {
     https.get(url, (res) => {
       var chunks = [];
       res.on('data', (chunk) => {
-        // console.log('chunk...');
+        console.log('chunk...');
 
         chunks.push(chunk);
       });
@@ -80,10 +66,10 @@ module.exports =  class Rotter {
         var decodedBody = this.decodeWin1255(chunks)
         
         const postData = this.scarpSinglePage(decodedBody,url)
-        this.rotterData.push(postData);
+        // this.rotterData.push(postData);
         
-        this.saveText(JSON.stringify(postData));
-        this.saveDB(postData)
+       this.saveData.saveText(JSON.stringify(postData));
+        this.saveData.saveDB(postData)
         console.log(--this.requestCounter);
         
 
@@ -92,7 +78,7 @@ module.exports =  class Rotter {
   }
 
   loopPages(){
-    this.clearFile();
+   this.saveData.clearFile();
     for (let i = this.endPost; i<=this.startPost;i++){
 
       const   pageUrl = this.baseUrl + i + this.extension
