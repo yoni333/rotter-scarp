@@ -6,7 +6,7 @@
   "nodemonConfig": {
     "verbose": true,
 
-    "ignore": ["src/rotter.json"]
+    "ignore": ["src/data/"]
 
   },
   "scripts": {
