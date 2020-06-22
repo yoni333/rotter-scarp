@@ -40,6 +40,12 @@ module.exports =  class Rotter {
     this.requestCounter=this.amountOfPosts
   
   }
+
+  getDataElement(html){
+    let noHeader = $('div', html).eq(1)
+    
+    return noHeader
+  }
   scarpSinglePage(decodedBody,url) {
     const title = $('h1.text16b', decodedBody).text();
     const writer = $('a>b', decodedBody).first().text();
@@ -57,15 +63,19 @@ module.exports =  class Rotter {
     https.get(url, (res) => {
       var chunks = [];
       res.on('data', (chunk) => {
-        console.log('chunk...');
+        // console.log('chunk...');
 
         chunks.push(chunk);
       });
       res.on('end', () => {
 
-        var decodedBody = this.decodeWin1255(chunks)
-        
-        const postData = this.scarpSinglePage(decodedBody,url)
+        let decodedBody = this.decodeWin1255(chunks)
+        this.saveData.fullPage(decodedBody ,url);
+
+        let htmlCherrio = this.getDataElement(decodedBody)
+        // console.log(htmlCherrio)
+
+        const postData = this.scarpSinglePage(htmlCherrio,url)
         // this.rotterData.push(postData);
         
        this.saveData.saveText(JSON.stringify(postData));
