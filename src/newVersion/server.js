@@ -12,6 +12,18 @@ app.use(bodyParser.text({ limit: '10mb', type: '*/*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+
+function logFailedRequest(current, url) {
+    try{
+
+        const logEntry = `${current}, ${url}\n`;
+        fs.appendFileSync(path.join(__dirname, 'failed-requests.csv'), logEntry, 'utf-8');
+    }catch(e){
+        log(e.message)
+    }
+  }
+
 function extractNumber(str) {
     const urlString = str
 
