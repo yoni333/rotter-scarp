@@ -74,14 +74,23 @@ app.post('/', (req, res) => {
     const divWithRTL = $('div[dir="RTL"]').first();
     // log(divWithRTL.html().slice(0,30))
     // Find the first <center> element inside the <div dir="RTL">
+    
     const post = divWithRTL.children('center').first().children('font').first().children('table').eq(2);
-   
+    const comments = divWithRTL.children('font').first().children('center').first().children('table').eq(0);
     
     const postData = scarpSinglePage($, post, targetUrl)
-    log(postData)
+    // log(postData)
+   try {
+    post.html().slice(0,30)
+    // log(post.html().slice(0,30))
+    // log(post.text().split('').reverse().join(''))
+    // log(comments.html().slice(0,1000))
+    // log(comments.text().split('').reverse().join(''))
+   } catch (error) {
+    log('error in targetUrl ',targetUrl)
+   }
    
-    log(post.html().slice(0,30))
-    log(post.text().split('').reverse().join(''))
+    
     // Get the text content of the third table
     // const tableContent = thirdTable.text();
 
@@ -99,3 +108,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+
