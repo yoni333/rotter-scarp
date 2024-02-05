@@ -3,7 +3,7 @@
   author: ''
   content: ''
   indentation: 0
-  startRoot: 0
+  startRoot: 1
   endRoot: 0
   replies:
     - index: '3'
@@ -26,7 +26,7 @@
   author: red diamond
   content: "\_\_שיום השמחה יהפך להם לאבל אמן"
   indentation: 0
-  startRoot: 1
+  startRoot: 0
   endRoot: 1
   replies:
     - index: '3'
@@ -49,7 +49,7 @@
   author: since1936
   content: "\_\_תתי אדם.צריכים לחיות בביוב."
   indentation: 0
-  startRoot: 5
+  startRoot: 1
   endRoot: 5
   replies:
     - index: '3'
@@ -72,7 +72,7 @@
   author: אריה33
   content: "\_\_השב''כ צריך להמשיך ללכוד את המסיתים לאלימות נגד היהודים"
   indentation: 0
-  startRoot: 6
+  startRoot: 5
   endRoot: 6
   replies:
     - index: '3'

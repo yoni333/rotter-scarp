@@ -246,8 +246,9 @@ function generateNestedStructure(comments) {
   let lastRoot = 1
   const rootComments = comments.map((comment,index) =>{
         if (comment.indentation === 0) {
+          let root = {...comment,startRoot:lastRoot,endRoot:index}  ;
           lastRoot = index;
-          return {...comment,startRoot:lastRoot,endRoot:index}  ;
+          return root
         }
         return false;
       }).filter(comments=>comments)
