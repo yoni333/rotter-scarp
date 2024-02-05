@@ -49,6 +49,11 @@ const htmlTable = `
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">21.05.21 <font size="1" face="Arial" color="red">05:55</font></font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">7</font></td>
 </tr>
+
+</tbody></table>
+`;
+
+/*
 <tr bgcolor="#FDFDFD"><td nowrap="" align="RIGHT" width="100%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://rotter.net/forum/Images/reply_message.gif"> <font size="2" face="Arial" color="#000099"><a href="#23"><font color="">אין סתירה בין המעשים הטובים שטוב שהיהודים יעשו לבין מלחמה נחושה מול האויב שרוצה בהשמדתינו</font></a></font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">אריה33</font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">21.05.21 <font size="1" face="Arial" color="red">08:09</font></font></td>
@@ -202,12 +207,13 @@ const htmlTable = `
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">09.06.21 <font size="1" face="Arial" color="red">14:56</font></font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">35</font></td>
 </tr>
-</tbody></table>
-`;
+
+*/
 
 // Parse HTML table using Cheerio
 const $ = cheerio.load(htmlTable);
 const comments = [];
+
 
 // Helper function to get the level of indentation
 function getIndentation(text) {
@@ -217,7 +223,7 @@ function getIndentation(text) {
     const matches = text.match(/^(&nbsp;)+/);
     if (matches) {
       // Calculate the indentation level based on the matches
-      return matches[0].length / 6; // Assuming each &nbsp; represents 6 spaces
+      return (matches[0].length / 6 /2)-1; // Assuming each &nbsp; represents 6 CHARS 
     }
     return 0; // Default to 0 if no matches found
   }
@@ -237,10 +243,23 @@ $('tr').each((index, row) => {
 
 // Function to convert comments to nested structure
 function generateNestedStructure(comments) {
-  const rootComments = comments.filter((comment) => comment.indentation === 0);
+  let lastRoot = 1
+  const rootComments = comments.map((comment,index) =>{
+        if (comment.indentation === 0) {
+          lastRoot = index;
+          return {...comment,startRoot:lastRoot,endRoot:index}  ;
+        }
+        return false;
+      }).filter(comments=>comments)
+  console.log("root final",rootComments);
 
   function createCommentTree(parentComment) {
-    const children = comments.filter((comment) => comment.indentation === parentComment.indentation + 1);
+    let gaurdIdentation = true;
+    const children = comments.filter((comment) => { 
+                                gaurdIdentation =comment.indentation === parentComment.indentation ?false:true ;
+                                return  (comment.indentation === parentComment.indentation +1  && gaurdIdentation)
+                              });
+      console.log("children length:", children.length);
     if (children.length === 0) {
       return { ...parentComment };
     }
@@ -248,7 +267,7 @@ function generateNestedStructure(comments) {
     return { ...parentComment, replies: nestedComments };
   }
 
-  const nestedComments = rootComments.map((comment) => createCommentTree(comment));
+  const nestedComments = rootComments.map((comment,index) => createCommentTree(comment));
   return nestedComments;
 }
 
@@ -274,10 +293,10 @@ fs.writeFileSync('comments_nested_yaml.yaml', nestedYAML);
 
 // Print the results (you can also save them to files)
 console.log('Simple Array:');
-console.log(simpleArray);
+// console.log(simpleArray);
 
 console.log('\nNested JSON:');
-console.log(nestedJSON);
+// console.log(nestedJSON);
 
-console.log('\nNested YAML:');
-console.log(nestedYAML);
+// console.log('\nNested YAML:');
+// console.log(nestedYAML);
