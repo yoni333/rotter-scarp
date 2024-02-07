@@ -49,11 +49,6 @@ const htmlTable = `
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">21.05.21 <font size="1" face="Arial" color="red">05:55</font></font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">7</font></td>
 </tr>
-
-</tbody></table>
-`;
-
-/*
 <tr bgcolor="#FDFDFD"><td nowrap="" align="RIGHT" width="100%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://rotter.net/forum/Images/reply_message.gif"> <font size="2" face="Arial" color="#000099"><a href="#23"><font color="">אין סתירה בין המעשים הטובים שטוב שהיהודים יעשו לבין מלחמה נחושה מול האויב שרוצה בהשמדתינו</font></a></font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">אריה33</font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">21.05.21 <font size="1" face="Arial" color="red">08:09</font></font></td>
@@ -75,6 +70,7 @@ const htmlTable = `
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">21.05.21 <font size="1" face="Arial" color="red">07:34</font></font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">8</font></td>
 </tr>
+
 <tr bgcolor="#FDFDFD">
 <td align="RIGHT" width="100%" nowrap="">&nbsp;&nbsp;<img src="https://rotter.net/forum/Images/message.gif"><font size="2" face="Arial" color="#000099"><a href="#9"><font color="">אבל בן גביר..</font></a></font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">שומרוני</font></td>
@@ -207,8 +203,8 @@ const htmlTable = `
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">09.06.21 <font size="1" face="Arial" color="red">14:56</font></font></td>
 <td align="center" nowrap=""><font size="1" face="Arial" color="#000099">35</font></td>
 </tr>
-
-*/
+</tbody></table>
+`
 
 // Parse HTML table using Cheerio
 const $ = cheerio.load(htmlTable);
@@ -217,13 +213,17 @@ const comments = [];
 
 // Helper function to get the level of indentation
 function getIndentation(text) {
-    if (text === null) {
-      return 0; // Return 0 if text is null
-    }
-    const matches = text.match(/^(&nbsp;)+/);
+  if (text === null) {
+    return 0; // Return 0 if text is null
+  }
+    const onltNBSP = text.split("<")[0];
+    const matches = onltNBSP.match(/^(&nbsp;)+/);
     if (matches) {
       // Calculate the indentation level based on the matches
-      return (matches[0].length / 6 /2)-1; // Assuming each &nbsp; represents 6 CHARS 
+      const inputNumber =(matches[0].length / 6 /2); // Assuming each &nbsp; represents 6 CHARS 
+      if (inputNumber <2){return inputNumber}
+      const  convertedNumber = inputNumber / 2 + 1;
+      return convertedNumber;
     }
     return 0; // Default to 0 if no matches found
   }
@@ -231,61 +231,60 @@ function getIndentation(text) {
 
 // Iterate through table rows
 $('tr').each((index, row) => {
+    var englishAndDigits = /^[A-Za-z0-9 ]*$/;
+    var english = /^[A-Za-z]*$/;
     const columns = $(row).find('td');
     const indentation = getIndentation($(columns[0]).html()); // Indentation is in td 0
     const indexValue = $(columns[3]).text(); // Index is in td 1
     const date = $(columns[2]).text();
-    const author = $(columns[1]).text();
-    const content = $(columns[0]).text(); // Content is in td 4
-  
-    comments.push({ index: indexValue, date, author, content, indentation });
+    const author = englishAndDigits.test($(columns[1]).text()) ===true ? $(columns[1]).text() : $(columns[1]).text().split('').reverse().join('');
+    console.log(    $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''));
+    const content = $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''); // Content is in td 4
+    const links=[]; //TODO extrat link to external source
+    comments.push({  indexValue, date, author, content, indentation ,links });
   });
 
 // Function to convert comments to nested structure
-function generateNestedStructure(comments) {
-  let lastRoot = 1
-  const rootComments = comments.map((comment,index) =>{
-        if (comment.indentation === 0) {
-          let root = {...comment,startRoot:lastRoot,endRoot:index}  ;
-          lastRoot = index;
-          return root
-        }
-        return false;
-      }).filter(comments=>comments)
-  console.log("root final",rootComments);
-
-  function createCommentTree(parentComment) {
-    let gaurdIdentation = true;
-    const children = comments.filter((comment) => { 
-                                gaurdIdentation =comment.indentation === parentComment.indentation ?false:true ;
-                                return  (comment.indentation === parentComment.indentation +1  && gaurdIdentation)
-                              });
-      console.log("children length:", children.length);
-    if (children.length === 0) {
-      return { ...parentComment };
-    }
-    const nestedComments = children.map((child) => createCommentTree(child));
-    return { ...parentComment, replies: nestedComments };
-  }
-
-  const nestedComments = rootComments.map((comment,index) => createCommentTree(comment));
-  return nestedComments;
-}
 
 // Convert comments to a simple array
-const simpleArray = comments.map(({ index, date, author, content ,indentation }) => ({
-  index,
+const simpleArray = comments.map(({ indexValue, date, author, content ,indentation }) => ({
+  indexValue,
   date,
   author,
   content,
   indentation,
-}));
+}))
+simpleArray.shift()
+function convertToNestedJson(arr) {
+  let root = {}; // Root of the nested structure
+  let nodes = [root]; // Stack to keep track of nodes
+
+  arr.forEach(({indentation, indexValue,date,author,content}) => {
+      let node = {indentation, indexValue,date,author,content}; // New node
+      // Find parent node
+      let parent = nodes[indentation] || root;
+      // console.table({indentation,index,root,nodes,parent})
+      // console.log(JSON.stringify(parent));
+      // If parent doesn't directly contain a 'nested' key or it's not an array, initialize it
+      if (!Array.isArray(parent.nested)) {
+          parent.nested = [];
+      }
+      // Add the new node to the 'nested' array of the parent
+      parent.nested.push({[indexValue]: node});
+      // Update the nodes array for the current level
+      nodes[indentation+1] = node;
+  });
+
+  // The root node itself is not part of the structure, so we return its 'nested' content
+  return root.nested;
+}
+
 
 // Convert comments to nested JSON
-const nestedJSON = generateNestedStructure(comments);
+const nestedJSON = convertToNestedJson(simpleArray);
 
 // Convert comments to nested YAML
-const nestedYAML = yaml.dump(generateNestedStructure(comments));
+const nestedYAML = yaml.dump(nestedJSON);
 
 // Save results to files (optional)
 fs.writeFileSync('comments_simple_array.json', JSON.stringify(simpleArray, null, 2));
