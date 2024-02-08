@@ -33,7 +33,7 @@ async function runInBrowser(targetUrl) {
     //  "Content-Type":" text/html; charset=utf-8"// Specify the content type
      "Content-Type":"application/json"// Specify the content type
     },
-    body:JSON.stringify({tetxtData:decodedContent,targetUrl}) // Convert the JavaScript object to a JSON string
+    body:JSON.stringify({pageHtml:decodedContent,targetUrl}) // Convert the JavaScript object to a JSON string
   });
 
   if (!responseLocal.ok) {
