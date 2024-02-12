@@ -21,9 +21,10 @@ module.exports = class RotterPageScarp {
         // Find the first <center> element inside the <div dir="RTL">
 
         const post = divWithRTL.children('center').first().children('font').first().children('table').eq(2);
-        const comments = divWithRTL.children('font').first().children('center').first().children('table').eq(0);
+        const commentsHeadersTable = divWithRTL.children('font').first().children('center').first().children('table').eq(0);
 
-        const postData = scarpPostMeta($, post, targetUrl)
+        const postData = this.scarpPostMeta($, post, targetUrl)
+        const commentsHeadersData = new RotterCommentsScarp( commentsHeadersTable, targetUrl)
         // log(postData)
         try {
             post.html().slice(0, 30)

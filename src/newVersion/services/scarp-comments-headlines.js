@@ -226,14 +226,14 @@ export class RotterCommentsScarp {
 
 
 
-  constructor(htmlTable) {
+  constructor(htmlTable,targetUrl) {
     this.$ = cheerio.load(htmlTable);
     this.comments = this.readTableRows(this.$);
     this.simpleArray = this.convertRowsDataToArray(this.comments);
     this.nestedJSON = convertToNestedJson(simpleArray);
     // Convert comments to nested YAML
     this.nestedYAML = yaml.dump(nestedJSON);
-    this.saveToFiles(this.simpleArray, this.nestedJSON, this.nestedYAML);
+    this.saveToFiles(this.simpleArray, this.nestedJSON, this.nestedYAML,targetUrl);
     // this.printScreen();
   }
 
@@ -271,8 +271,8 @@ export class RotterCommentsScarp {
     return simpleArray;
   }
 
-  saveToFiles(simpleArray, nestedJSON, nestedYAML) {
-
+  saveToFiles(simpleArray, nestedJSON, nestedYAML,targetUrl) {
+  console.log("saveToFiles ",targetUrl);
     // Save results to files (optional)
     fs.writeFileSync('comments_simple_array.json', JSON.stringify(simpleArray, null, 2));
     fs.writeFileSync('comments_nested_json.json', JSON.stringify(nestedJSON, null, 2));
