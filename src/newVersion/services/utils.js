@@ -1,5 +1,5 @@
 // Helper function to get the level of indentation
-export function getIndentation(text) {
+ function getIndentation(text) {
     if (text === null) {
       return 0; // Return 0 if text is null
     }
@@ -17,7 +17,7 @@ export function getIndentation(text) {
     
 
     // Convert comments to nested JSON
-    export function convertToNestedJson(arr) {
+     function convertToNestedJson(arr) {
         let root = {}; // Root of the nested structure
         let nodes = [root]; // Stack to keep track of nodes
       
@@ -39,4 +39,11 @@ export function getIndentation(text) {
       
         // The root node itself is not part of the structure, so we return its 'nested' content
         return root.nested;
+      }
+
+
+      module.exports = {
+        getIndentation,
+        convertToNestedJson
+      
       }

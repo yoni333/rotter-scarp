@@ -1,7 +1,7 @@
 const cheerio = require('cheerio');
 const fs = require('fs');
 const yaml = require('js-yaml');
-import { getIndentation, convertToNestedJson } from './utils.js';
+const  { getIndentation, convertToNestedJson } = require('./utils.js');
 
 
 // Sample HTML table as a string (replace with your HTML table)
@@ -217,7 +217,7 @@ const htmlTable = `
 
 
 
-export class RotterCommentsScarp {
+ class RotterCommentsScarp {
   $;
   comments = undefined;
   simpleArray = undefined;
@@ -296,3 +296,6 @@ export class RotterCommentsScarp {
 
 
 }
+
+
+module.exports = RotterCommentsScarp;

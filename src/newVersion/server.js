@@ -3,6 +3,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 var cheerio = require('cheerio');
 const { log } = require('console');
+
+
+const RotterPageScarp  = require('./services/page-scarp.js')
 const app = express();
 const port = 3000;
 app.use(cors());
@@ -29,6 +32,7 @@ app.post('/', (req, res) => {
     console.log('POST request body:', req.body.targetUrl);
     let pageHtml = req.body.pageHtml
     const targetUrl = req.body.targetUrl
+    // console.log(req.body)
    try {
     
        new RotterPageScarp(pageHtml,targetUrl)

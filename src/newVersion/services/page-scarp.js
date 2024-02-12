@@ -1,14 +1,18 @@
 var iconv = require('iconv-lite');
 const https = require('https')
-const $ = require('cheerio');
-const SaveData = require('./save-data')
+const cheerio = require('cheerio');
+const RotterCommentsScarp = require('./scarp-comments-headlines.js')
 
-module.exports = class RotterPageScarp {
+class RotterPageScarp {
     constructor(pageHtml, targetUrl) {
-
+        this.extract(pageHtml, targetUrl)
     }
 
-    extract(){
+    extract(pageHtml, targetUrl) {
+        if (pageHtml == undefined) {
+            console.log('pageHtml is undefined')
+            return
+        }
         const $ = cheerio.load(pageHtml);
         // let htmlCherrio = getDataElement($, pageHtml);
 
@@ -24,7 +28,7 @@ module.exports = class RotterPageScarp {
         const commentsHeadersTable = divWithRTL.children('font').first().children('center').first().children('table').eq(0);
 
         const postData = this.scarpPostMeta($, post, targetUrl)
-        const commentsHeadersData = new RotterCommentsScarp( commentsHeadersTable, targetUrl)
+        const commentsHeadersData = new RotterCommentsScarp(commentsHeadersTable, targetUrl)
         // log(postData)
         try {
             post.html().slice(0, 30)
@@ -34,7 +38,7 @@ module.exports = class RotterPageScarp {
             // log(comments.text().split('').reverse().join(''))
         } catch (error) {
             log('error in targetUrl ', targetUrl)
-            throw(error)
+            throw (error)
         }
     }
 
@@ -64,7 +68,7 @@ module.exports = class RotterPageScarp {
     scarpPostMeta(cheer, decodedBody, url) {
         const title = cheer('h1.text16b', decodedBody).text();
         const writer = cheer('a>b', decodedBody).first().text();
-        const postData = { index: extractPostNumberFromUrl(url), title, writer, url };
+        const postData = { index: this.extractPostNumberFromUrl(url), title, writer, url };
         return postData;
     }
 
@@ -77,3 +81,5 @@ module.exports = class RotterPageScarp {
 
 } //end class
 
+
+module.exports = RotterPageScarp;
