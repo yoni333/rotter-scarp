@@ -2,7 +2,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const yaml = require('js-yaml');
 const  { getIndentation, convertToNestedJson } = require('./utils.js');
-
+const SaveToFiles = require ('./save-files.js')
 
 // Sample HTML table as a string (replace with your HTML table)
 const htmlTable = `
@@ -208,23 +208,12 @@ const htmlTable = `
 </tbody></table>
 `
 
-
-
-
-
-
-
-
-
-
  class RotterCommentsScarp {
   $;
   comments = undefined;
   simpleArray = undefined;
   nestedJSON = undefined;
   nestedYAML = undefined;
-
-
 
   constructor(htmlTable,targetUrl) {
     this.$ = cheerio.load(htmlTable);
@@ -272,12 +261,8 @@ const htmlTable = `
   }
 
   saveToFiles(simpleArray, nestedJSON, nestedYAML,targetUrl) {
-  console.log("saveToFiles ",targetUrl);
-    // Save results to files (optional)
-    fs.writeFileSync('comments_simple_array.json', JSON.stringify(simpleArray, null, 2));
-    fs.writeFileSync('comments_nested_json.json', JSON.stringify(nestedJSON, null, 2));
-    fs.writeFileSync('comments_nested_yaml.yaml', nestedYAML);
-
+    let saveToFiles = new SaveToFiles()
+    saveToFiles.saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl)
   }
   printScreen() {
     // Print the results (you can also save them to files)
