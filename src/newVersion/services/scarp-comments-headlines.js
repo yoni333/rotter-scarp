@@ -1,6 +1,8 @@
 const cheerio = require('cheerio');
 const fs = require('fs');
 const yaml = require('js-yaml');
+import { getIndentation, convertToNestedJson } from './utils.js';
+
 
 // Sample HTML table as a string (replace with your HTML table)
 const htmlTable = `
@@ -206,97 +208,91 @@ const htmlTable = `
 </tbody></table>
 `
 
-// Parse HTML table using Cheerio
-const $ = cheerio.load(htmlTable);
-const comments = [];
 
 
-// Helper function to get the level of indentation
-function getIndentation(text) {
-  if (text === null) {
-    return 0; // Return 0 if text is null
+
+
+
+
+
+
+
+export class RotterCommentsScarp {
+  $;
+  comments = undefined;
+  simpleArray = undefined;
+  nestedJSON = undefined;
+  nestedYAML = undefined;
+
+
+
+  constructor(htmlTable) {
+    this.$ = cheerio.load(htmlTable);
+    this.comments = this.readTableRows(this.$);
+    this.simpleArray = this.convertRowsDataToArray(this.comments);
+    this.nestedJSON = convertToNestedJson(simpleArray);
+    // Convert comments to nested YAML
+    this.nestedYAML = yaml.dump(nestedJSON);
+    this.saveToFiles(this.simpleArray, this.nestedJSON, this.nestedYAML);
+    // this.printScreen();
   }
-    const onltNBSP = text.split("<")[0];
-    const matches = onltNBSP.match(/^(&nbsp;)+/);
-    if (matches) {
-      // Calculate the indentation level based on the matches
-      const inputNumber =(matches[0].length / 6 /2); // Assuming each &nbsp; represents 6 CHARS 
-      if (inputNumber <2){return inputNumber}
-      const  convertedNumber = inputNumber / 2 + 1;
-      return convertedNumber;
-    }
-    return 0; // Default to 0 if no matches found
+
+
+  readTableRows($) {
+    const comments = []
+    // Iterate through table rows
+    $('tr').each((index, row) => {
+      var englishAndDigits = /^[A-Za-z0-9 ]*$/;
+      var english = /^[A-Za-z]*$/;
+      const columns = $(row).find('td');
+      const indentation = getIndentation($(columns[0]).html()); // Indentation is in td 0
+      const indexValue = $(columns[3]).text(); // Index is in td 1
+      const date = $(columns[2]).text();
+      const author = englishAndDigits.test($(columns[1]).text()) === true ? $(columns[1]).text() : $(columns[1]).text().split('').reverse().join('');
+      console.log($(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''));
+      const content = $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''); // Content is in td 4
+      const links = []; //TODO extrat link to external source
+      comments.push({ indexValue, date, author, content, indentation, links });
+    });
+
+    return comments
   }
-  
 
-// Iterate through table rows
-$('tr').each((index, row) => {
-    var englishAndDigits = /^[A-Za-z0-9 ]*$/;
-    var english = /^[A-Za-z]*$/;
-    const columns = $(row).find('td');
-    const indentation = getIndentation($(columns[0]).html()); // Indentation is in td 0
-    const indexValue = $(columns[3]).text(); // Index is in td 1
-    const date = $(columns[2]).text();
-    const author = englishAndDigits.test($(columns[1]).text()) ===true ? $(columns[1]).text() : $(columns[1]).text().split('').reverse().join('');
-    console.log(    $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''));
-    const content = $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''); // Content is in td 4
-    const links=[]; //TODO extrat link to external source
-    comments.push({  indexValue, date, author, content, indentation ,links });
-  });
+  convertRowsDataToArray(comments) {
 
-// Function to convert comments to nested structure
+    const simpleArray = comments.map(({ indexValue, date, author, content, indentation }) => ({
+      indexValue,
+      date,
+      author,
+      content,
+      indentation,
+    }))
+    simpleArray.shift()
+    return simpleArray;
+  }
 
-// Convert comments to a simple array
-const simpleArray = comments.map(({ indexValue, date, author, content ,indentation }) => ({
-  indexValue,
-  date,
-  author,
-  content,
-  indentation,
-}))
-simpleArray.shift()
-function convertToNestedJson(arr) {
-  let root = {}; // Root of the nested structure
-  let nodes = [root]; // Stack to keep track of nodes
+  saveToFiles(simpleArray, nestedJSON, nestedYAML) {
 
-  arr.forEach(({indentation, indexValue,date,author,content}) => {
-      let node = {indentation, indexValue,date,author,content}; // New node
-      // Find parent node
-      let parent = nodes[indentation] || root;
-      // console.table({indentation,index,root,nodes,parent})
-      // console.log(JSON.stringify(parent));
-      // If parent doesn't directly contain a 'nested' key or it's not an array, initialize it
-      if (!Array.isArray(parent.nested)) {
-          parent.nested = [];
-      }
-      // Add the new node to the 'nested' array of the parent
-      parent.nested.push({[indexValue]: node});
-      // Update the nodes array for the current level
-      nodes[indentation+1] = node;
-  });
+    // Save results to files (optional)
+    fs.writeFileSync('comments_simple_array.json', JSON.stringify(simpleArray, null, 2));
+    fs.writeFileSync('comments_nested_json.json', JSON.stringify(nestedJSON, null, 2));
+    fs.writeFileSync('comments_nested_yaml.yaml', nestedYAML);
 
-  // The root node itself is not part of the structure, so we return its 'nested' content
-  return root.nested;
+  }
+  printScreen() {
+    // Print the results (you can also save them to files)
+    console.log('Simple Array:');
+    console.log(this.simpleArray);
+
+    console.log('\nNested JSON:');
+    console.log(this.nestedJSON);
+
+    console.log('\nNested YAML:');
+    console.log(this.nestedYAML);
+
+  }
+
+
+
+
 }
-
-
-// Convert comments to nested JSON
-const nestedJSON = convertToNestedJson(simpleArray);
-
-// Convert comments to nested YAML
-const nestedYAML = yaml.dump(nestedJSON);
-
-// Save results to files (optional)
-fs.writeFileSync('comments_simple_array.json', JSON.stringify(simpleArray, null, 2));
-fs.writeFileSync('comments_nested_json.json', JSON.stringify(nestedJSON, null, 2));
-fs.writeFileSync('comments_nested_yaml.yaml', nestedYAML);
-
-// Print the results (you can also save them to files)
-console.log('Simple Array:');
-// console.log(simpleArray);
-
-console.log('\nNested JSON:');
-// console.log(nestedJSON);
-
-// console.log('\nNested YAML:');
-// console.log(nestedYAML);

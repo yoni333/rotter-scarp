@@ -10,7 +10,7 @@ module.exports = class RotterPageScarp {
 
     extract(){
         const $ = cheerio.load(pageHtml);
-        let htmlCherrio = getDataElement($, pageHtml);
+        // let htmlCherrio = getDataElement($, pageHtml);
 
         // Remove all <script> tags and their content
         $('script').remove();
@@ -67,12 +67,12 @@ module.exports = class RotterPageScarp {
         return postData;
     }
 
-    getDataElement(cheer, html) {
+    // getDataElement(cheer, html) {
 
-        let noHeader = cheer('body', html).eq(1)
+    //     let noHeader = cheer('body', html).eq(1)
 
-        return noHeader
-    }
+    //     return noHeader
+    // }
 
 } //end class
 
