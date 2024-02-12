@@ -2,6 +2,7 @@ var iconv = require('iconv-lite');
 const https = require('https')
 const cheerio = require('cheerio');
 const RotterCommentsScarp = require('./scarp-comments-headlines.js')
+const RotterCommentsFullTextScarp = require('./scarp-comments-full-text.js')
 
 class RotterPageScarp {
     constructor(pageHtml, targetUrl) {
@@ -24,14 +25,16 @@ class RotterPageScarp {
         // log(divWithRTL.html().slice(0,30))
         // Find the first <center> element inside the <div dir="RTL">
 
-        const post = divWithRTL.children('center').first().children('font').first().children('table').eq(2);
+        const mainPost = divWithRTL.children('center').first().children('font').first().children('table').eq(2);
         const commentsHeadersTable = divWithRTL.children('font').first().children('center').first().children('table').eq(0);
+        const commentsFullTextTables = divWithRTL.children('font').first().children('center').first().children('#comments_wrap').eq(0);
 
-        const postData = this.scarpPostMeta($, post, targetUrl)
+        const postData = this.scarpPostMeta($, mainPost, targetUrl)
         const commentsHeadersData = new RotterCommentsScarp(commentsHeadersTable, targetUrl)
+        // const commentsFullTextData = new RotterCommentsFullTextScarp(commentsFullTextTables, targetUrl)
         // log(postData)
         try {
-            post.html().slice(0, 30)
+            mainPost.html().slice(0, 30)
             // log(post.html().slice(0,30))
             // log(post.text().split('').reverse().join(''))
             // log(comments.html().slice(0,1000))

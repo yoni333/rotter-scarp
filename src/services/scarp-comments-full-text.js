@@ -1,8 +1,8 @@
 const cheerio = require('cheerio');
 const fs = require('fs');
 const yaml = require('js-yaml');
-const  { getIndentation, convertToNestedJson } = require('./utils.js');
-const SaveToFiles = require ('./save-files.js')
+const { getIndentation, convertToNestedJson } = require('./utils.js');
+const SaveToFiles = require('./save-files.js')
 
 // Sample HTML table as a string (replace with your HTML table)
 const htmlTable = `
@@ -208,78 +208,74 @@ const htmlTable = `
 </tbody></table>
 `
 
- class RotterCommentsScarp {
-  $;
-  comments = undefined;
-  simpleArray = undefined;
-  nestedJSON = undefined;
-  nestedYAML = undefined;
+class RotterCommentsFullTextScarp {
+    $;
+    comments = undefined;
+    simpleArray = undefined;
+    nestedJSON = undefined;
+    nestedYAML = undefined;
 
-  constructor(htmlTable,targetUrl) {
-    if (htmlTable == undefined) {
-      console.log('htmlTable headlines is undefined')
-      return
+    constructor(htmlTable, targetUrl) {
+        this.$ = cheerio.load(htmlTable);
+        this.comments = this.readTableRows(this.$);
+        this.simpleArray = this.convertRowsDataToArray(this.comments);
+        this.nestedJSON = convertToNestedJson(simpleArray);
+        // Convert comments to nested YAML
+        this.nestedYAML = yaml.dump(nestedJSON);
+        this.saveToFiles(this.simpleArray, this.nestedJSON, this.nestedYAML, targetUrl);
+        // this.printScreen();
     }
-    this.$ = cheerio.load(htmlTable);
-    this.comments = this.readTableRows(this.$);
-    this.simpleArray = this.convertRowsDataToArray(this.comments);
-    this.nestedJSON = convertToNestedJson(simpleArray);
-    // Convert comments to nested YAML
-    this.nestedYAML = yaml.dump(nestedJSON);
-    this.saveToFiles(this.simpleArray, this.nestedJSON, this.nestedYAML,targetUrl);
-    // this.printScreen();
-  }
 
 
-  readTableRows($) {
-    const comments = []
-    // Iterate through table rows
-    $('tr').each((index, row) => {
-      var englishAndDigits = /^[A-Za-z0-9 ]*$/;
-      var english = /^[A-Za-z]*$/;
-      const columns = $(row).find('td');
-      const indentation = getIndentation($(columns[0]).html()); // Indentation is in td 0
-      const indexValue = $(columns[3]).text(); // Index is in td 1
-      const date = $(columns[2]).text();
-      const author = englishAndDigits.test($(columns[1]).text()) === true ? $(columns[1]).text() : $(columns[1]).text().split('').reverse().join('');
-      console.log($(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''));
-      const content = $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''); // Content is in td 4
-      const links = []; //TODO extrat link to external source
-      comments.push({ indexValue, date, author, content, indentation, links });
-    });
+    readTableRows($) {
+        const comments = []
+        // Iterate through table rows
+        $('tr').each((index, row) => {
+            var englishAndDigits = /^[A-Za-z0-9 ]*$/;
+            var english = /^[A-Za-z]*$/;
+            const columns = $(row).find('td');
+            const indentation = getIndentation($(columns[0]).html()); // Indentation is in td 0
+            const indexValue = $(columns[3]).text(); // Index is in td 1
+            const date = $(columns[2]).text();
+            const author = englishAndDigits.test($(columns[1]).text()) === true ? $(columns[1]).text() : $(columns[1]).text().split('').reverse().join('');
+            console.log($(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''));
+            const content = $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''); // Content is in td 4
+            const links = []; //TODO extrat link to external source
+            comments.push({ indexValue, date, author, content, indentation, links });
+        });
 
-    return comments
-  }
+        return comments
+    }
 
-  convertRowsDataToArray(comments) {
+    convertRowsDataToArray(comments) {
 
-    const simpleArray = comments.map(({ indexValue, date, author, content, indentation }) => ({
-      indexValue,
-      date,
-      author,
-      content,
-      indentation,
-    }))
-    simpleArray.shift()
-    return simpleArray;
-  }
+        const simpleArray = comments.map(({ indexValue, date, author, content, indentation }) => ({
+            indexValue,
+            date,
+            author,
+            content,
+            indentation,
+        }))
+        simpleArray.shift()
+        return simpleArray;
+    }
 
-  saveToFiles(simpleArray, nestedJSON, nestedYAML,targetUrl) {
-    let saveToFiles = new SaveToFiles()
-    saveToFiles.saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl)
-  }
-  printScreen() {
-    // Print the results (you can also save them to files)
-    console.log('Simple Array:');
-    console.log(this.simpleArray);
+    saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl) {
+        let saveToFiles = new SaveToFiles()
+        saveToFiles.saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl)
+    }
+    printScreen() {
+        // Print the results (you can also save them to files)
+        console.log('Simple Array:');
+        console.log(this.simpleArray);
 
-    console.log('\nNested JSON:');
-    console.log(this.nestedJSON);
+        console.log('\nNested JSON:');
+        console.log(this.nestedJSON);
 
-    console.log('\nNested YAML:');
-    console.log(this.nestedYAML);
+        console.log('\nNested YAML:');
+        console.log(this.nestedYAML);
 
-  }
+    }
 
 
 
@@ -287,4 +283,4 @@ const htmlTable = `
 }
 
 
-module.exports = RotterCommentsScarp;
+module.exports = RotterCommentsFullTextScarp;

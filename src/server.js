@@ -35,7 +35,7 @@ app.post('/', (req, res) => {
     // console.log(req.body)
    try {
     
-       new RotterPageScarp(pageHtml,targetUrl)
+     const rotterPageScarp =  new RotterPageScarp(pageHtml,targetUrl)
      
      
    } catch (error) {

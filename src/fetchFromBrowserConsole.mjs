@@ -4,9 +4,6 @@ import fetch from 'node-fetch';
 
 async function runInBrowser(targetUrl) {
 
-
-
-
   const response  = await fetch(targetUrl)
   if (!response.ok) {
     throw new Error('Network response was not ok');
