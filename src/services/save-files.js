@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 class saveToFiles {
 
 
@@ -7,10 +9,11 @@ class saveToFiles {
 
 
     saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl) {
+
         console.log("saveToFiles ", targetUrl);
         // Save results to files (optional)
-        fs.writeFileSync('comments_simple_array.json', JSON.stringify(simpleArray, null, 2));
-        fs.writeFileSync('comments_nested_json.json', JSON.stringify(nestedJSON, null, 2));
+        fs.writeFileSync('comments_simple_array.json', simpleArray);
+        fs.writeFileSync('comments_nested_json.json', nestedJSON);
         fs.writeFileSync('comments_nested_yaml.yaml', nestedYAML);
 
     }

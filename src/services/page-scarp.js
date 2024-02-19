@@ -14,23 +14,27 @@ class RotterPageScarp {
             console.log('pageHtml is undefined')
             return
         }
-        const $ = cheerio.load(pageHtml);
+        const $allPage = cheerio.load(pageHtml);
         // let htmlCherrio = getDataElement($, pageHtml);
 
         // Remove all <script> tags and their content
-        $('script').remove();
-
+        $allPage('head').remove();
+        $allPage('script').remove();
+        $allPage('iframe').remove();
+       
         // Find the first <div dir="RTL"> element
-        const divWithRTL = $('div[dir="RTL"]').first();
+        const $divWithRTL = $allPage('div dir="RTL"'); 
+        console.log('divWithRTL',$divWithRTL);
         // log(divWithRTL.html().slice(0,30))
         // Find the first <center> element inside the <div dir="RTL">
+        console.log('divWithRTL', $divWithRTL.html().slice(0, 100))
+        const mainPost = $divWithRTL.children('center').first().children('font').first().children('table').eq(2);
+        
+        const commentsHeadersTable = $divWithRTL.children('font').first().children('center').first().children('table').eq(0);
+        const commentsFullTextTables = $divWithRTL.children('font').first().children('center').first().children('#comments_wrap').eq(0);
 
-        const mainPost = divWithRTL.children('center').first().children('font').first().children('table').eq(2);
-        const commentsHeadersTable = divWithRTL.children('font').first().children('center').first().children('table').eq(0);
-        const commentsFullTextTables = divWithRTL.children('font').first().children('center').first().children('#comments_wrap').eq(0);
-
-        const postData = this.scarpPostMeta($, mainPost, targetUrl)
-        const commentsHeadersData = new RotterCommentsScarp(commentsHeadersTable, targetUrl)
+        const postData = this.scarpPostMeta($allPage, mainPost, targetUrl)
+        const commentsHeadersData = new RotterCommentsScarp(commentsHeadersTable.html(), targetUrl)
         // const commentsFullTextData = new RotterCommentsFullTextScarp(commentsFullTextTables, targetUrl)
         // log(postData)
         try {
@@ -40,7 +44,7 @@ class RotterPageScarp {
             // log(comments.html().slice(0,1000))
             // log(comments.text().split('').reverse().join(''))
         } catch (error) {
-            log('error in targetUrl ', targetUrl)
+            console.log('error in targetUrl ', targetUrl)
             throw (error)
         }
     }

@@ -1,8 +1,9 @@
 const cheerio = require('cheerio');
-const fs = require('fs');
+
 const yaml = require('js-yaml');
 const  { getIndentation, convertToNestedJson } = require('./utils.js');
-const SaveToFiles = require ('./save-files.js')
+const SaveToFiles = require ('./save-files.js');
+const { log } = require('console');
 
 // Sample HTML table as a string (replace with your HTML table)
 const htmlTable = `
@@ -221,11 +222,12 @@ const htmlTable = `
       return
     }
     this.$ = cheerio.load(htmlTable);
+    console.log(this.$.html());
     this.comments = this.readTableRows(this.$);
     this.simpleArray = this.convertRowsDataToArray(this.comments);
-    this.nestedJSON = convertToNestedJson(simpleArray);
+    this.nestedJSON = convertToNestedJson(this.simpleArray);
     // Convert comments to nested YAML
-    this.nestedYAML = yaml.dump(nestedJSON);
+    this.nestedYAML = yaml.dump(this.nestedJSON);
     this.saveToFiles(this.simpleArray, this.nestedJSON, this.nestedYAML,targetUrl);
     // this.printScreen();
   }
@@ -252,7 +254,7 @@ const htmlTable = `
   }
 
   convertRowsDataToArray(comments) {
-
+    console.log('comments',comments);
     const simpleArray = comments.map(({ indexValue, date, author, content, indentation }) => ({
       indexValue,
       date,
@@ -260,13 +262,21 @@ const htmlTable = `
       content,
       indentation,
     }))
+    console.log(simpleArray);
     simpleArray.shift()
     return simpleArray;
   }
 
   saveToFiles(simpleArray, nestedJSON, nestedYAML,targetUrl) {
     let saveToFiles = new SaveToFiles()
-    saveToFiles.saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl)
+    console.log('simpleArray',simpleArray)
+// console.log('nestedJSON',nestedJSON)
+// console.log('nestedYAML',nestedYAML)
+    saveToFiles.saveToFiles(
+      simpleArray.toString(), 
+      JSON.stringify(nestedJSON, null, 2), 
+      nestedYAML.toString(),
+       targetUrl)
   }
   printScreen() {
     // Print the results (you can also save them to files)
