@@ -21,10 +21,10 @@ class RotterPageScarp {
         $allPage('head').remove();
         $allPage('script').remove();
         $allPage('iframe').remove();
-       
+        const $body = $allPage('body')
         // Find the first <div dir="RTL"> element
-        const $divWithRTL = $allPage('div dir="RTL"'); 
-        console.log('divWithRTL',$divWithRTL);
+        const $divWithRTL = $body.find('<div dir="RTL">')
+        console.log('divWithRTL',$divWithRTL.text());
         // log(divWithRTL.html().slice(0,30))
         // Find the first <center> element inside the <div dir="RTL">
         console.log('divWithRTL', $divWithRTL.html().slice(0, 100))
