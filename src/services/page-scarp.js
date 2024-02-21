@@ -21,19 +21,18 @@ class RotterPageScarp {
         $allPage('head').remove();
         $allPage('script').remove();
         $allPage('iframe').remove();
-        const $body = $allPage('body')
+        const $body = $allPage('body');
         // Find the first <div dir="RTL"> element
-        const $divWithRTL = $body.find('<div dir="RTL">')
-        console.log('divWithRTL',$divWithRTL.text());
-        // log(divWithRTL.html().slice(0,30))
+        const $divWithRTL = $body.find('div[dir="RTL"]');
         // Find the first <center> element inside the <div dir="RTL">
-        console.log('divWithRTL', $divWithRTL.html().slice(0, 100))
         const mainPost = $divWithRTL.children('center').first().children('font').first().children('table').eq(2);
-        
+        if (mainPost.html().slice(1, 8) !== "<tbody>") { throw new Error("RotterPageScarp:mainPost_fail") }
         const commentsHeadersTable = $divWithRTL.children('font').first().children('center').first().children('table').eq(0);
         const commentsFullTextTables = $divWithRTL.children('font').first().children('center').first().children('#comments_wrap').eq(0);
 
         const postData = this.scarpPostMeta($allPage, mainPost, targetUrl)
+        if (postData.title === "") { throw new Error("RotterPageScarp:postData_fail") }
+        
         const commentsHeadersData = new RotterCommentsScarp(commentsHeadersTable.html(), targetUrl)
         // const commentsFullTextData = new RotterCommentsFullTextScarp(commentsFullTextTables, targetUrl)
         // log(postData)

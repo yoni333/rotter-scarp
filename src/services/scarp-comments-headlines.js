@@ -219,12 +219,20 @@ const htmlTable = `
   constructor(htmlTable,targetUrl) {
     if (htmlTable == undefined) {
       console.log('htmlTable headlines is undefined')
-      return
+      throw new Error('RotterCommentsScarp:htmlTable_undefined')
     }
     this.$ = cheerio.load(htmlTable);
-    console.log(this.$.html());
+    log('$:',this.$.html().slice(1,1500))
     this.comments = this.readTableRows(this.$);
+    if (this.comments.length === 0){
+      throw new Error('RotterCommentsScarp:fail_comments')
+
+    }
     this.simpleArray = this.convertRowsDataToArray(this.comments);
+    if (this.simpleArray.length === 0) {
+      throw new Error('RotterCommentsScarp:fail_simpleArray')
+
+    }
     this.nestedJSON = convertToNestedJson(this.simpleArray);
     // Convert comments to nested YAML
     this.nestedYAML = yaml.dump(this.nestedJSON);
