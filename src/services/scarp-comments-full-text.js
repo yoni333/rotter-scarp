@@ -262,7 +262,11 @@ class RotterCommentsFullTextScarp {
 
     saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl) {
         let saveToFiles = new SaveToFiles()
-        saveToFiles.saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl)
+        saveToFiles.saveToFiles(
+            JSON.stringify(simpleArray, null, 2), 
+            JSON.stringify(nestedJSON, null, 2), 
+            nestedYAML.toString(),
+             targetUrl)
     }
     printScreen() {
         // Print the results (you can also save them to files)

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { extractPostNumberFromUrl } = require('./utils.js')
 class saveToFiles {
 
 
@@ -8,7 +9,7 @@ class saveToFiles {
     }
 
 
-    saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl,output= 'output') {
+    saveToFiles(simpleArray, nestedJSON, nestedYAML, targetUrl, output = 'output') {
 
         console.log("saveToFiles ", targetUrl);
         // Save results to files (optional)
@@ -17,13 +18,9 @@ class saveToFiles {
         fs.mkdir(outputDir, { recursive: true }, (err) => {
             if (err) throw err;
         });
-        fs.writeFileSync( path.join(outputDir , 'comments_simple_array.json'), simpleArray);
-        //how to write athe aboe 2 lines in 1 line  
-
-
-
-        fs.writeFileSync( path.join(outputDir , 'comments_nested_json.json', nestedJSON));
-        fs.writeFileSync( path.join(outputDir ,  'comments_nested_yaml.yaml', nestedYAML));
+      //  fs.writeFileSync(path.join(outputDir, extractPostNumberFromUrl(targetUrl) + '_comments_simple_array.json'), simpleArray);
+        fs.writeFileSync(path.join(outputDir, extractPostNumberFromUrl(targetUrl) + '_comments_nested_json.json'), nestedJSON);
+       // fs.writeFileSync(path.join(outputDir, extractPostNumberFromUrl(targetUrl) + '_comments_nested_yaml.yaml'), nestedYAML);
 
     }
 }

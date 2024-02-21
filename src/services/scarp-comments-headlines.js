@@ -4,6 +4,7 @@ const yaml = require('js-yaml');
 const  { getIndentation, convertToNestedJson } = require('./utils.js');
 const SaveToFiles = require ('./save-files.js');
 const { log } = require('console');
+const {EOL} = require('os');
 
 // Sample HTML table as a string (replace with your HTML table)
 const htmlTable = `
@@ -247,15 +248,17 @@ const htmlTable = `
     const comments = []
     // Iterate through table rows
     $('tr').each((index, row) => {
+      console.log('row',row);
+
       var englishAndDigits = /^[A-Za-z0-9 ]*$/;
       var english = /^[A-Za-z]*$/;
       const columns = $(row).find('td');
-      const indentation = getIndentation($(columns[0]).html()); // Indentation is in td 0
+      const indentation = getIndentation($(columns[0]).text()); // Indentation is in td 0
       const indexValue = $(columns[3]).text(); // Index is in td 1
       const date = $(columns[2]).text();
       const author = englishAndDigits.test($(columns[1]).text()) === true ? $(columns[1]).text() : $(columns[1]).text().split('').reverse().join('');
       // console.log($(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''));
-      const content = $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''); // Content is in td 4
+      const content = $(columns[0]).children('a').eq(0).children('font').eq(0).children('font').eq(0).text().split('').reverse().join(''); // Content is in td 4
       const links = []; //TODO extrat link to external source
       comments.push({ indexValue, date, author, content, indentation, links });
     });
@@ -279,11 +282,10 @@ const htmlTable = `
 
   saveToFiles(simpleArray, nestedJSON, nestedYAML,targetUrl) {
     let saveToFiles = new SaveToFiles()
-    console.log('simpleArray',simpleArray)
-// console.log('nestedJSON',nestedJSON)
-// console.log('nestedYAML',nestedYAML)
+    // this.printScreen()
     saveToFiles.saveToFiles(
-      simpleArray.toString(), 
+    
+      JSON.stringify(simpleArray, null, 2), 
       JSON.stringify(nestedJSON, null, 2), 
       nestedYAML.toString(),
        targetUrl)
