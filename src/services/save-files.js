@@ -1,9 +1,9 @@
 const fs = require('fs');
-
+const path = require('path');
 class saveToFiles {
 
 
-    constructor(){
+    constructor() {
 
     }
 
@@ -12,7 +12,16 @@ class saveToFiles {
 
         console.log("saveToFiles ", targetUrl);
         // Save results to files (optional)
-        fs.writeFileSync('comments_simple_array.json', simpleArray);
+        const outputDir = path.join(__dirname, '..', '..', 'output');
+
+        fs.mkdir(outputDir, { recursive: true }, (err) => {
+            if (err) throw err;
+        });
+        fs.writeFileSync(outputDir + "/" + 'comments_simple_array.json', simpleArray);
+        //how to write athe aboe 2 lines in 1 line  
+
+
+
         fs.writeFileSync('comments_nested_json.json', nestedJSON);
         fs.writeFileSync('comments_nested_yaml.yaml', nestedYAML);
 

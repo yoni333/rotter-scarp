@@ -221,8 +221,10 @@ const htmlTable = `
       console.log('htmlTable headlines is undefined')
       throw new Error('RotterCommentsScarp:htmlTable_undefined')
     }
-    this.$ = cheerio.load(htmlTable);
-    log('$:',this.$.html().slice(1,1500))
+    this.$ = cheerio.load(htmlTable, {
+      xmlMode: true // Treats the loaded content as XML, which prevents adding extra tags
+    });
+   
     this.comments = this.readTableRows(this.$);
     if (this.comments.length === 0){
       throw new Error('RotterCommentsScarp:fail_comments')
@@ -252,7 +254,7 @@ const htmlTable = `
       const indexValue = $(columns[3]).text(); // Index is in td 1
       const date = $(columns[2]).text();
       const author = englishAndDigits.test($(columns[1]).text()) === true ? $(columns[1]).text() : $(columns[1]).text().split('').reverse().join('');
-      console.log($(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''));
+      // console.log($(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''));
       const content = $(columns[0]).children('font').eq(0).children('a').eq(0).children('font').eq(0).text().split('').reverse().join(''); // Content is in td 4
       const links = []; //TODO extrat link to external source
       comments.push({ indexValue, date, author, content, indentation, links });
