@@ -248,7 +248,7 @@ const htmlTable = `
     const comments = []
     // Iterate through table rows
     $('tr').each((index, row) => {
-      console.log('row',row);
+      // console.log('row',row);
 
       var englishAndDigits = /^[A-Za-z0-9 ]*$/;
       var english = /^[A-Za-z]*$/;
@@ -267,7 +267,7 @@ const htmlTable = `
   }
 
   convertRowsDataToArray(comments) {
-    console.log('comments',comments);
+    // console.log('comments',comments);
     const simpleArray = comments.map(({ indexValue, date, author, content, indentation }) => ({
       indexValue,
       date,
@@ -275,7 +275,7 @@ const htmlTable = `
       content,
       indentation,
     }))
-    console.log(simpleArray);
+    // console.log(simpleArray);
     simpleArray.shift()
     return simpleArray;
   }
@@ -283,12 +283,18 @@ const htmlTable = `
   saveToFiles(simpleArray, nestedJSON, nestedYAML,targetUrl) {
     let saveToFiles = new SaveToFiles()
     // this.printScreen()
+    try {
+      
+    
     saveToFiles.saveToFiles(
     
       JSON.stringify(simpleArray, null, 2), 
       JSON.stringify(nestedJSON, null, 2), 
       nestedYAML.toString(),
        targetUrl)
+      } catch (error) {
+        
+      }
   }
   printScreen() {
     // Print the results (you can also save them to files)

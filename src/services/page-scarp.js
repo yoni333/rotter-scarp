@@ -43,6 +43,7 @@ class RotterPageScarp {
             // log(comments.text().split('').reverse().join(''))
         } catch (error) {
             console.log('error in targetUrl ', targetUrl)
+           
             throw (error)
         }
     }

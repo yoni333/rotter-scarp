@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-var cheerio = require('cheerio');
 const { log } = require('console');
+const fs = require('fs');
+const path = require('path');
+var cheerio = require('cheerio');
 
 
 const RotterPageScarp  = require('./services/page-scarp.js')
@@ -19,11 +21,12 @@ app.use(express.urlencoded({ extended: true }));
 
 function logFailedRequest(current, url) {
     try{
-
-        const logEntry = `${current}, ${url}\n`;
+        const date = new Date();
+        const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        const logEntry = `${formattedDate},${current}, ${url}\n`;
         fs.appendFileSync(path.join(__dirname, 'failed-requests.csv'), logEntry, 'utf-8');
     }catch(e){
-        log(e.message)
+        log("logFailedRequest",e.message)
     }
   }
 
@@ -40,8 +43,12 @@ app.post('/', (req, res) => {
      
    } catch (error) {
         console.log(error);
+        logFailedRequest(error, targetUrl)
    }
-    res.send('POST request received');
+   finally{
+
+       res.send('POST request received');
+   }
 });
 
 // GET route handler

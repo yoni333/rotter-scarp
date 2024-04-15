@@ -1,6 +1,4 @@
 
-import { log } from 'console';
-import fetch from 'node-fetch';
 
 async function runInBrowser(targetUrl) {
 
